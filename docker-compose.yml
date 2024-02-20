@@ -1,0 +1,36 @@
+version: '1.0'
+
+services:
+  nodejs_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "$NODE_LOCAL_PORT:$NODE_DOCKER_PORT"
+    env_file: ./.env
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: $MYSQL_HOST
+      MYSQL_PORT: $MYSQL_PORT
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+    volumes:
+      - .:/usr/src/app
+
+  mysql:
+    image: mysql:8.0
+    env_file: ./.env
+    restart: always
+    ports:
+      - "$MYSQL_PORT:$MYSQL_PORT"
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_PORT: $MYSQL_PORT
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./create_database.sql:/docker-entrypoint-initdb.d/create_database.sql
